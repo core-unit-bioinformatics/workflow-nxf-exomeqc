@@ -21,6 +21,19 @@ workflow EXOMEQC {
     ch_samplesheet // channel: samplesheet read in from --input
     main:
 
+    // Collect output files for multiQC
+
+    // DRAGEN
+    //get DRAGEN folder into channel
+    // since multiQC scans the whole directory, just need to add it to multiQC
+    ch_dragen_output_dir = params.dragen_output_dir ? Channel.fromPath(params.dragen_output_dir).collect()  : Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(ch_dragen_output_dir)
+
+    // variantinterpretation
+    ch_variantinterpretation = params.vip_output_dir ? Channel.fromPath(params.dragen_output_dir).collect()  : Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(ch_variantinterpretation)
+
+
     ch_versions = channel.empty()
     ch_multiqc_files = channel.empty()
 
@@ -88,7 +101,6 @@ workflow EXOMEQC {
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
         ch_multiqc_logo.toList(),
         [],
         []

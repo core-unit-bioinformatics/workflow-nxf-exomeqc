@@ -253,5 +253,13 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "dragen_output_dir": {
+            "type": "string"
+        },
+        "vip_output_dir": {
+            "type": "string"
+        }
+    }
 }
