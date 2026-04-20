@@ -77,8 +77,7 @@
                     "format": "directory-path",
                     "description": "The base path to the igenomes reference files",
                     "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "default": "s3://ngi-igenomes/igenomes/"
+                    "hidden": true
                 }
             }
         },
@@ -255,10 +254,7 @@
         }
     ],
     "properties": {
-        "dragen_output_dir": {
-            "type": "string"
-        },
-        "vip_output_dir": {
+        "multiqc_inputs": {
             "type": "string"
         }
     }

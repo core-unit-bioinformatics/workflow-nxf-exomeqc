@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { samplesheetToList      } from 'plugin/nf-schema'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -26,16 +27,11 @@ workflow EXOMEQC {
     ch_multiqc_files = channel.empty()
 
     // Collect output files for multiQC
-
-    // DRAGEN
-    //get DRAGEN folder into channel
-    // since multiQC scans the whole directory, just need to add it to multiQC
-    ch_dragen_output_dir = params.dragen_output_dir ? Channel.fromPath(params.dragen_output_dir).collect()  : Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_dragen_output_dir)
-
-    // variantinterpretation
-    ch_variantinterpretation = params.vip_output_dir ? Channel.fromPath(params.dragen_output_dir).collect()  : Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_variantinterpretation)
+    // using the nf-schema samplesheetToList function for adding directories to multiqc via config file
+    channel
+        .fromList(samplesheetToList(params.multiqc_inputs, "${projectDir}/assets/multiqc_input_schema.json"))
+        .set { ch_multiqc_inputs }
+    ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_inputs)
 
     //
     // Collate and save software versions

@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/core-unit-bioinformatics/exomeqc/main/assets/multiqc_input_schema.json",
+    "title": "core-unit-bioinformatics/exomeqc pipeline - params.multiqc_inputs schema",
+    "description": "Schema for the file provided with params.multiqc_inputs",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "paths": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "errorMessage": "Provide directories for multiQC to scan."
+            }
+        },
+        "required": ["paths"]
+    }
+}
