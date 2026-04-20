@@ -1,5 +1,4 @@
 process MULTIQC {
-    tag "${meta.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
@@ -8,16 +7,16 @@ process MULTIQC {
         : 'quay.io/biocontainers/multiqc:1.33--pyhdfd78af_0'}"
 
     input:
-    tuple val(meta), path(multiqc_files, stageAs: "?/*")
+    path(multiqc_files, stageAs: "?/*")
     path(multiqc_config, stageAs: "?/*")
     path(multiqc_logo)
     path(replace_names)
     path(sample_names)
 
     output:
-    tuple val(meta), path("*.html"), emit: report
-    tuple val(meta), path("*_data"), emit: data
-    tuple val(meta), path("*_plots"), emit: plots, optional: true
+    path("*.html"), emit: report
+    path("*_data"), emit: data
+    path("*_plots"), emit: plots, optional: true
     // MultiQC should not push its versions to the `versions` topic. Its input depends on the versions topic to be resolved thus outputting to the topic will let the pipeline hang forever
     tuple val("${task.process}"), val('multiqc'), eval('multiqc --version | sed "s/.* //g"'), emit: versions
 
