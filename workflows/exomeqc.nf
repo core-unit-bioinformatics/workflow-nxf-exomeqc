@@ -21,6 +21,10 @@ workflow EXOMEQC {
     ch_samplesheet // channel: samplesheet read in from --input
     main:
 
+    // initialize empty channels for collecting software versions and multiQC files
+    ch_versions = channel.empty()
+    ch_multiqc_files = channel.empty()
+
     // Collect output files for multiQC
 
     // DRAGEN
@@ -32,10 +36,6 @@ workflow EXOMEQC {
     // variantinterpretation
     ch_variantinterpretation = params.vip_output_dir ? Channel.fromPath(params.dragen_output_dir).collect()  : Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(ch_variantinterpretation)
-
-
-    ch_versions = channel.empty()
-    ch_multiqc_files = channel.empty()
 
     //
     // Collate and save software versions
