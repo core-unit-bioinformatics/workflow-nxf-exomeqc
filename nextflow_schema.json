@@ -43,6 +43,32 @@
                 }
             }
         },
+        "fingerprintcheck_options": {
+            "title": "Fingerprint check options",
+            "type": "object",
+            "fa_icon": "fas fa-fingerprint",
+            "description": "Options for optional Picard CrosscheckFingerprints analysis.",
+            "properties": {
+                "enable_fingerprintcheck": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Enable Picard CrosscheckFingerprints on normal/tumor BAMs from the samplesheet.",
+                    "help_text": "When enabled, each row in the input samplesheet must define `normal_bam` and `tumor_bam` columns."
+                },
+                "fingerprint_haplotype_map": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "description": "Path to Picard/GATK haplotype map used by CrosscheckFingerprints.",
+                    "help_text": "Required when `--enable_fingerprintcheck` is set."
+                },
+                "fingerprint_allow_duplicate_reads": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Allow duplicate reads in CrosscheckFingerprints."
+                }
+            }
+        },
         "reference_genome_options": {
             "title": "Reference genome options",
             "type": "object",
@@ -242,6 +268,9 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/fingerprintcheck_options"
         },
         {
             "$ref": "#/$defs/reference_genome_options"

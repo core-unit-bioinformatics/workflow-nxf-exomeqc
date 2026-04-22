@@ -1,0 +1,61 @@
+name: "fingerprintcheck"
+description: |
+  Index input BAMs with samtools, run Picard CrosscheckFingerprints across all
+  normal/tumor pairs from the samplesheet, and visualise the resulting LOD-score
+  matrices as PNG heatmaps and a combined PDF report.
+keywords:
+  - crosscheck
+  - fingerprint
+  - qc
+  - heatmap
+components:
+  - samtools/index
+  - picard/crosscheckfingerprints
+  - fingerprintcheck/visualize
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map with samplesheet-level metadata.
+          e.g. `[ id:'sample1', normal_bam:'/path/to/normal.bam', tumor_bam:'/path/to/tumor.bam' ]`
+    - fastqs:
+        type: list
+        description: List of FastQ paths (passed through, not consumed by this subworkflow)
+  - haplotype_map:
+      type: file
+      description: Picard haplotype map file used by CrosscheckFingerprints
+      pattern: "*.{txt,vcf,vcf.gz}"
+output:
+  crosscheck_metrics:
+    - - meta:
+          type: map
+          description: Run-level metadata map `[ id:'fingerprintcheck' ]`
+      - "*.crosscheck_metrics.txt":
+          type: file
+          description: Picard CrosscheckFingerprints metrics file
+          pattern: "*.crosscheck_metrics.txt"
+  plots:
+    - - meta:
+          type: map
+          description: Run-level metadata map `[ id:'fingerprintcheck' ]`
+      - "*.png":
+          type: file
+          description: LOD-score heatmap PNGs
+          pattern: "*.png"
+  report:
+    - - meta:
+          type: map
+          description: Run-level metadata map `[ id:'fingerprintcheck' ]`
+      - "*.pdf":
+          type: file
+          description: Combined PDF report containing all heatmaps
+          pattern: "*.pdf"
+  versions:
+    - versions.yml:
+        type: file
+        description: Software versions YAML
+        pattern: "versions.yml"
+authors:
+  - "@kai"
+maintainers:
+  - "@kai"

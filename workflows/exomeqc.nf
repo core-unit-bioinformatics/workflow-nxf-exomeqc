@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { FINGERPRINTCHECK       } from '../subworkflows/local/fingerprintcheck/main'
 include { samplesheetToList      } from 'plugin/nf-schema'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -33,10 +34,29 @@ workflow EXOMEQC {
         .set { ch_multiqc_inputs }
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_inputs)
 
+    if (params.enable_fingerprintcheck) {
+        if (!params.fingerprint_haplotype_map) {
+            error("Please provide --fingerprint_haplotype_map when --enable_fingerprintcheck is set")
+        }
+        if (!ch_samplesheet.first().map { meta, _ -> meta.bam }) {
+            error("Fingerprint check requires samplesheet column 'bam' for all samples")
+        }
+
+        FINGERPRINTCHECK(
+            ch_samplesheet,
+            params.fingerprint_haplotype_map
+        )
+
+        // MultiQC expects plain file paths; fingerprintcheck outputs are tuple(meta, path).
+        ch_multiqc_files       = ch_multiqc_files.mix(
+            FINGERPRINTCHECK.out.crosscheck_metrics.map { _meta, crosscheck_metrics -> crosscheck_metrics }
+        )
+    }
+
     //
     // Collate and save software versions
     //
-    def topic_versions = Channel.topic("versions")
+    def topic_versions = channel.topic("versions")
         .distinct()
         .branch { entry ->
             versions_file: entry instanceof Path
