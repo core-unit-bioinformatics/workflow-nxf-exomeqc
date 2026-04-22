@@ -8,7 +8,41 @@ report_section_order:
     order: -1001
   "core-unit-bioinformatics-exomeqc-summary":
     order: -1002
+  "Tertiary analysis":
+    order: -100
+  "Secondary analysis":
+    order: 0
+  "Primary analysis":
+    order: 100
 
 export_plots: true
 
 disable_version_detection: true
+
+fn_clean_exts:
+  - ".hard-filtered.vcf.gz"
+
+module_order:
+  - vep
+  - bcftools
+  - dragen
+  - fastqc
+  - bclconvert
+
+section_comments:
+  vep: "### Tertiary analysis"
+  bcftools: "### Secondary analysis"
+  dragen: "### Secondary analysis"
+  fastqc: "### Primary analysis"
+  bclconvert: "### Primary analysis"
+
+general_stats_columns:
+  dragen:
+    columns:
+      "Total input reads": {}
+      "Unmapped reads pct": {}
+      "Insert length: median": {}
+      "Estimated sample contamination": {}
+      "Total": {}
+      "Ploidy estimation": {}
+      "target bed average alignment coverage over region": {}
