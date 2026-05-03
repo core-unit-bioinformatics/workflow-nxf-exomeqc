@@ -50,8 +50,7 @@ TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
 
 Optional columns for fingerprint checking:
 
-- `normal_bam`: Full path to the normal BAM/CRAM file for a sample row when fingerprint check is enabled.
-- `tumor_bam`: Full path to the tumor BAM/CRAM file for a sample row when fingerprint check is enabled.
+- `bam`: Full path to a BAM/CRAM file for a sample row when fingerprint check is enabled.
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -61,6 +60,28 @@ The typical command for running the pipeline is as follows:
 
 ```bash
 nextflow run core-unit-bioinformatics/exomeqc --input ./samplesheet.csv --outdir ./results --genome GRCh37 -profile docker
+```
+
+To enable FastQ Screen and include its metrics in MultiQC, add:
+
+```bash
+--enable_fastqscreen --fastqscreen_database /path/to/FastQ_Screen_Genomes
+```
+
+The `--fastqscreen_database` directory must contain `fastq_screen.conf` and the referenced genome index folders.
+
+To enable Picard CrosscheckFingerprints, add:
+
+```bash
+--enable_fingerprintcheck --fingerprint_haplotype_map /path/to/haplotype_map.txt
+```
+
+When `--enable_fingerprintcheck` is set, the input samplesheet must include a `bam` column for all rows.
+
+You can also control duplicate-read handling in fingerprinting with:
+
+```bash
+--fingerprint_allow_duplicate_reads true
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.

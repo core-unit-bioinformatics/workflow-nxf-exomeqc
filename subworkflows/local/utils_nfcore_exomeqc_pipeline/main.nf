@@ -217,6 +217,8 @@ def toolCitationText() {
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
             "Tools used in the workflow included:",
+            params.enable_fastqscreen ? "FastQ Screen (Wingett and Andrews 2018)," : "",
+            params.enable_fingerprintcheck ? "Picard CrosscheckFingerprints (Picard Toolkit, Broad Institute)," : "",
             "MultiQC (Ewels et al. 2016)",
             "."
         ].join(' ').trim()
@@ -229,8 +231,10 @@ def toolBibliographyText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
+            params.enable_fastqscreen ? "<li>Wingett, S. W., & Andrews, S. FastQ Screen: A tool for multi-genome mapping and quality control [version 2; referees: 4 approved]. F1000Research 2018, 7:1338. <a href='https://doi.org/10.12688/f1000research.15931.2'>https://doi.org/10.12688/f1000research.15931.2</a></li>" : "",
+            params.enable_fingerprintcheck ? "<li>Picard Toolkit. Broad Institute, GitHub Repository. <a href='https://broadinstitute.github.io/picard/'>https://broadinstitute.github.io/picard/</a>. CrosscheckFingerprints command used in this workflow.</li>" : "",
             "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
-        ].join(' ').trim()
+        ].findAll { entry -> entry }.join(' ').trim()
 
     return reference_text
 }
@@ -259,9 +263,8 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["tool_citations"] = ""
     meta["tool_bibliography"] = ""
 
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
+    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    meta["tool_bibliography"] = toolBibliographyText()
 
 
     def methods_text = mqc_methods_yaml.text

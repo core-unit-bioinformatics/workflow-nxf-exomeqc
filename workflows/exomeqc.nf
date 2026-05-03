@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { FASTQSCREEN_FASTQSCREEN } from '../modules/nf-core/fastqscreen/fastqscreen/main'
 include { FINGERPRINTCHECK       } from '../subworkflows/local/fingerprintcheck/main'
 include { samplesheetToList      } from 'plugin/nf-schema'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
@@ -34,11 +35,27 @@ workflow EXOMEQC {
         .set { ch_multiqc_inputs }
     ch_multiqc_files = ch_multiqc_files.mix(ch_multiqc_inputs)
 
+    if (params.enable_fastqscreen) {
+        if (!params.fastqscreen_database) {
+            error("Please provide --fastqscreen_database when --enable_fastqscreen is set")
+        }
+
+        FASTQSCREEN_FASTQSCREEN(
+            ch_samplesheet,
+            file(params.fastqscreen_database, checkIfExists: true)
+        )
+
+        // MultiQC parses FastQ Screen from *_screen.txt output files.
+        ch_multiqc_files = ch_multiqc_files.mix(
+            FASTQSCREEN_FASTQSCREEN.out.txt.map { _meta, txt -> txt }
+        )
+    }
+
     if (params.enable_fingerprintcheck) {
         if (!params.fingerprint_haplotype_map) {
             error("Please provide --fingerprint_haplotype_map when --enable_fingerprintcheck is set")
         }
-        if (!ch_samplesheet.first().map { meta, _ -> meta.bam }) {
+        if (!ch_samplesheet.first().map { meta, _reads -> meta.bam }) {
             error("Fingerprint check requires samplesheet column 'bam' for all samples")
         }
 
@@ -116,7 +133,7 @@ workflow EXOMEQC {
 
     MULTIQC (
         ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
+        ch_multiqc_config.mix(ch_multiqc_custom_config).toList(),
         ch_multiqc_logo.toList(),
         [],
         []
