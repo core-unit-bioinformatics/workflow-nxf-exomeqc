@@ -3,14 +3,15 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                 } from '../modules/nf-core/multiqc/main'
 include { FASTQSCREEN_FASTQSCREEN } from '../modules/nf-core/fastqscreen/fastqscreen/main'
-include { FINGERPRINTCHECK       } from '../subworkflows/local/fingerprintcheck/main'
-include { samplesheetToList      } from 'plugin/nf-schema'
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_exomeqc_pipeline'
+include { DRAGEN_CNV_QC           } from '../modules/local/dragen_cnv_qc/main'
+include { FINGERPRINTCHECK        } from '../subworkflows/local/fingerprintcheck/main'
+include { samplesheetToList       } from 'plugin/nf-schema'
+include { paramsSummaryMap        } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc    } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML  } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText  } from '../subworkflows/local/utils_nfcore_exomeqc_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -70,6 +71,18 @@ workflow EXOMEQC {
         )
     }
 
+    if (params.enable_cnvqc) {
+        if (!params.dragen_dirs) {
+            error("Please provide --dragen_dirs when --enable_cnvqc is set")
+        }
+        
+        DRAGEN_CNV_QC(params.dragen_dirs)
+
+        ch_multiqc_files       = ch_multiqc_files.mix(DRAGEN_CNV_QC.out.metrics)
+        ch_multiqc_files       = ch_multiqc_files.mix(DRAGEN_CNV_QC.out.json)
+        ch_multiqc_files       = ch_multiqc_files.mix(DRAGEN_CNV_QC.out.plots)
+    }
+
     //
     // Collate and save software versions
     //
@@ -103,6 +116,11 @@ workflow EXOMEQC {
     //
     // MODULE: MultiQC
     //
+
+    //add DRAGEN dir to multiqc inputs
+    if (params.dragen_dirs) {
+        ch_multiqc_files = ch_multiqc_files.mix(Channel.fromPath(params.dragen_dirs))
+    }
     ch_multiqc_config        = channel.fromPath(
         "$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     ch_multiqc_custom_config = params.multiqc_config ?
@@ -116,7 +134,8 @@ workflow EXOMEQC {
         workflow, parameters_schema: "nextflow_schema.json")
     ch_workflow_summary = channel.value(paramsSummaryMultiqc(summary_params))
     ch_multiqc_files = ch_multiqc_files.mix(
-        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
+        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml')
+    )
     ch_multiqc_custom_methods_description = params.multiqc_methods_description ?
         file(params.multiqc_methods_description, checkIfExists: true) :
         file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
@@ -138,7 +157,6 @@ workflow EXOMEQC {
         [],
         []
     )
-
     emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 

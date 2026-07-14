@@ -56,7 +56,8 @@
                 "enable_fingerprintcheck": {
                     "type": "boolean",
                     "description": "Enable Picard CrosscheckFingerprints on normal/tumor BAMs from the samplesheet.",
-                    "help_text": "When enabled, each row in the input samplesheet must define `normal_bam` and `tumor_bam` columns."
+                    "help_text": "When enabled, each row in the input samplesheet must define `normal_bam` and `tumor_bam` columns.",
+                    "default": true
                 },
                 "fingerprint_haplotype_map": {
                     "type": "string",
@@ -81,7 +82,8 @@
                 "enable_fastqscreen": {
                     "type": "boolean",
                     "description": "Enable FastQ Screen analysis for input FASTQ files.",
-                    "help_text": "Requires `--fastqscreen_database` to point to a FastQ Screen database directory containing `fastq_screen.conf`."
+                    "help_text": "Requires `--fastqscreen_database` to point to a FastQ Screen database directory containing `fastq_screen.conf`.",
+                    "default": true
                 },
                 "fastqscreen_database": {
                     "type": "string",
@@ -312,5 +314,50 @@
         {
             "$ref": "#/$defs/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "enable_cnvqc": {
+            "type": "boolean",
+            "default": true
+        },
+        "dragen_dirs": {
+            "type": "string"
+        },
+        "pmad_max": {
+            "type": "string"
+        },
+        "coverage_mad_max": {
+            "type": "string"
+        },
+        "outlier_baf_fraction_max": {
+            "type": "string"
+        },
+        "diploid_coverage_min": {
+            "type": "string"
+        },
+        "purity_min": {
+            "type": "string"
+        },
+        "purity_max": {
+            "type": "string"
+        },
+        "ploidy_min": {
+            "type": "string"
+        },
+        "ploidy_max": {
+            "type": "string"
+        },
+        "post_norm_sigma_max": {
+            "type": "string"
+        },
+        "num_segments_max": {
+            "type": "string"
+        },
+        "filtered_records_relative_max": {
+            "type": "string"
+        },
+        "homozygosity_index_max": {
+            "type": "string"
+        }
+    }
 }

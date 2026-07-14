@@ -2,9 +2,9 @@ process MULTIQC {
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
-    container "${workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container
-        ? 'https://depot.galaxyproject.org/singularity/multiqc:1.33--pyhdfd78af_0'
-        : 'quay.io/biocontainers/multiqc:1.33--pyhdfd78af_0'}"
+    container "${workflow.containerEngine in ['singularity', 'apptainer'] && !task.ext.singularity_pull_docker_container
+        ? 'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/c8/c8e346f4f6080eadf1253505e6ff09ef004454fc18e8d672006fd7b222cc412e/data'
+        : 'community.wave.seqera.io/library/multiqc:1.35--c17fb751507e9dfc'}"
 
     input:
     path(multiqc_files, stageAs: "?/*")
