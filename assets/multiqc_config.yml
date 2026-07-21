@@ -60,17 +60,17 @@ report_section_order:
   exomeqc_purcov_maxmodel:
     order: 870
   cio-abcd-variantinterpretation-methods-description:
-    order: 60
+    order: -10
   cio-abcd-variantinterpretation-summary:
-    order: 50
+    order: -20
   BfArM-MVH-GRZ_QC_Workflow-summary:
-    order: 40
-  software_versions:
-    order: 30
+    order: -30
   core-unit-bioinformatics-exomeqc-methods-description:
-    order: 20
+    order: -40
+  software_versions:
+    order: -50
   core-unit-bioinformatics-exomeqc-summary:
-    order: 10
+    order: -60
 export_plots: true
 extra_fn_clean_trim:
   - .hard-filtered
